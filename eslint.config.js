@@ -28,22 +28,13 @@ export default [
     },
   },
   {
-    // app.js and data-management.js are loaded as separate classic <script>
-    // tags sharing one global scope with js/utils.js -- declare the helpers
-    // utils.js exposes (see its `exported` directive) so ESLint doesn't flag
-    // cross-file globals as undefined.
-    files: ["app.js", "data-management.js"],
+    // app.js and js/** are ES modules (loaded via <script type="module">) --
+    // they import what they need (including the js/utils.js helpers) rather
+    // than relying on shared globals.
+    files: ["app.js", "js/**/*.js"],
     languageOptions: {
-      globals: {
-        formatINR: "readonly",
-        formatCost: "readonly",
-        escapeHtml: "readonly",
-        normalizeCategory: "readonly",
-        calculateEarnedPoints: "readonly",
-        calculateRedeemFromPoints: "readonly",
-        formatFileSize: "readonly",
-        slugifyFormName: "readonly",
-      },
+      ecmaVersion: 2022,
+      sourceType: "module",
     },
   },
   {

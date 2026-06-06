@@ -1,4 +1,4 @@
-# Database Schema — AARMA Dental Clinic Management System
+# Database Schema — Dental Clinic Management System
 
 > **Cross-references:** See [system_architecture.md](./system_architecture.md) for storage layer decisions, [product_requirements.md](./product_requirements.md) for field-level validation rules, [error_handling_and_testing.md](./error_handling_and_testing.md) for data integrity checks.
 

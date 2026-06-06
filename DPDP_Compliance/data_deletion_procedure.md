@@ -1,5 +1,5 @@
 # Patient Data Deletion Procedure
-## AARMA Dental Clinic Management System
+## Dental Clinic Management System
 
 **Version:** 1.0  
 **Effective Date:** [INSERT DATE BEFORE LAUNCH]  

@@ -1,4 +1,4 @@
-# Product Requirements — AARMA Dental Clinic Management System
+# Product Requirements — Dental Clinic Management System
 
 > **Cross-references:** See [system_architecture.md](./system_architecture.md) for architecture decisions, [database_schema.md](./database_schema.md) for data models, [error_handling_and_testing.md](./error_handling_and_testing.md) for validation rules and test cases.
 
@@ -6,7 +6,7 @@
 
 ## 1. Purpose & Scope
 
-This document defines the complete functional and non-functional requirements for the AARMA Dental Clinic Management System — a web-based CRM for dental clinics covering patient management, treatment tracking, billing, rewards, reporting, and document management.
+This document defines the complete functional and non-functional requirements for the Dental Clinic Management System — a web-based CRM for dental clinics covering patient management, treatment tracking, billing, rewards, reporting, and document management.
 
 **Target users:** Front-desk staff, dentists, clinic administrators.  
 **Current deployment:** Local browser-based app (Chromium).  
@@ -232,7 +232,7 @@ These are currently hardcoded in `app.js` and should be made configurable per cl
 
 | Constant | Value | Description |
 |---|---|---|
-| `CLINIC_NAME` | `"AARMA Dental clinic"` | Displayed in header and invoices |
+| `CLINIC_NAME` | `"Dental clinic"` | Displayed in header and invoices |
 | `CLINIC_ADDRESS` | `"Navaladiyan complex, 1st floor, Thanthonimalai Karur"` | Printed on invoices |
 | `CLINIC_PHONE` | `"+91 9489266309"` | Printed on invoices |
 | `POINT_EARN_RATE` | `100` | ₹ per earn block |

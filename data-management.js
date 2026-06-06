@@ -246,7 +246,7 @@ async function exportData() {
       metadata: {
         exportDate: new Date().toISOString(),
         version: '1.0',
-        clinicName: 'AARMA Dental Clinic',
+        clinicName: 'Dental Clinic',
         recordCounts: {
           patients: patients.length,
           treatments: treatments.length,

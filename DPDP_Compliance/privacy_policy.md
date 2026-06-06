@@ -1,5 +1,5 @@
 # Privacy Policy
-## AARMA Dental Clinic Management System
+## Dental Clinic Management System
 
 **Version:** 1.0  
 **Effective Date:** [INSERT DATE BEFORE LAUNCH]  
@@ -14,7 +14,7 @@
 
 ## Part A — Who We Are and What This Policy Covers
 
-**AARMA Dental CRM** ("AARMA", "we", "us", "our") is a Software-as-a-Service (SaaS) platform that provides dental clinic management software to dental clinics and practitioners across India.
+**Dental CRM** ("AARMA", "we", "us", "our") is a Software-as-a-Service (SaaS) platform that provides dental clinic management software to dental clinics and practitioners across India.
 
 **Legal entity:** [YOUR REGISTERED COMPANY NAME]  
 **Registered address:** [YOUR REGISTERED ADDRESS]  

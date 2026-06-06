@@ -1,4 +1,4 @@
-# Error Handling & Testing — AARMA Dental Clinic Management System
+# Error Handling & Testing — Dental Clinic Management System
 
 > **Cross-references:** See [system_architecture.md](./system_architecture.md) for storage layers, [product_requirements.md](./product_requirements.md) for validation rules (REQ-*), [database_schema.md](./database_schema.md) for data integrity constraints.
 

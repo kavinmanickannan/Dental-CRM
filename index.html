@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AAARMA Dental Clinic</title>
+    <title>ADental Clinic</title>
     <link rel="stylesheet" href="styles.css" />
     <script>
       // Initialize theme early to prevent flash
@@ -17,7 +17,7 @@
   <body>
     <header class="app-header">
       <div>
-        <h1>AARMA Dental Clinic</h1>
+        <h1>Dental Clinic</h1>
         
       </div>
     </header>
@@ -265,15 +265,27 @@
           </div>
         </div>
 
-        <div id="patientDetailPanel" class="card detail-card hidden">
-          <div class="card-header">
-            <h2>Patient Snapshot</h2>
-            <button type="button" class="secondary pill" id="closePatientDetail">
-              Close
-            </button>
-          </div>
-          <div id="patientDetailContent" class="detail-body empty-state">
-            Select a patient name or search by ID to view details.
+        <div
+          id="patientDetailPanel"
+          class="modal hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="patientDetailTitle"
+        >
+          <div class="modal-content modal-large">
+            <div class="modal-header">
+              <h3 id="patientDetailTitle">Patient Snapshot</h3>
+              <div class="modal-actions">
+                <button type="button" class="secondary pill" id="closePatientDetail">
+                  Close
+                </button>
+              </div>
+            </div>
+            <div class="modal-body">
+              <div id="patientDetailContent" class="detail-body empty-state">
+                Select a patient name or search by ID to view details.
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -618,8 +630,7 @@
       </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
   </body>
 </html>
 

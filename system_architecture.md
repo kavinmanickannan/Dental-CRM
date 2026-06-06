@@ -1,4 +1,4 @@
-# System Architecture — AARMA Dental Clinic Management System
+# System Architecture — Dental Clinic Management System
 
 > **Cross-references:** See [database_schema.md](./database_schema.md) for data models, [product_requirements.md](./product_requirements.md) for feature inventory, [error_handling_and_testing.md](./error_handling_and_testing.md) for error patterns and test coverage.
 
@@ -6,7 +6,7 @@
 
 ## 1. Application Overview
 
-AARMA Dental Clinic Management System is a **single-page application (SPA)** built entirely with vanilla HTML, CSS, and JavaScript. It runs fully in the browser with zero server dependencies in its current form. All data is persisted locally using **IndexedDB** (primary) with **localStorage** as a fallback mirror.
+Dental Clinic Management System is a **single-page application (SPA)** built entirely with vanilla HTML, CSS, and JavaScript. It runs fully in the browser with zero server dependencies in its current form. All data is persisted locally using **IndexedDB** (primary) with **localStorage** as a fallback mirror.
 
 The application is currently deployed as a **local desktop app** — staff open `index.html` directly in a Chromium-based browser. The roadmap is to migrate it to a **hosted SaaS model** so multiple dental clinics can use it online.
 

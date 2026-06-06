@@ -1,5 +1,5 @@
 # Breach Notification Process
-## AARMA Dental Clinic Management System
+## Dental Clinic Management System
 
 **Version:** 1.0  
 **Effective Date:** [INSERT DATE BEFORE LAUNCH]  
@@ -161,7 +161,7 @@ AARMA must notify the affected clinic(s) in writing using the template below:
 
 ---
 
-**BREACH NOTIFICATION — AARMA DENTAL CRM**
+**BREACH NOTIFICATION — Dental CRM**
 
 **To:** [Clinic Administrator Name], [Clinic Name]  
 **From:** Kavin Manickannan, AARMA Grievance Officer  
@@ -171,7 +171,7 @@ AARMA must notify the affected clinic(s) in writing using the template below:
 
 Dear [Clinic Name] Team,
 
-We are writing to inform you of a personal data security incident that may affect patient data managed through AARMA Dental CRM for your clinic.
+We are writing to inform you of a personal data security incident that may affect patient data managed through Dental CRM for your clinic.
 
 **What happened:**  
 [Factual description — 2–3 sentences. Do not speculate on cause or blame.]
@@ -195,7 +195,7 @@ Please contact us immediately at kavinmanickannan@gmail.com or [phone] with any 
 
 Regards,  
 Kavin Manickannan  
-Grievance Officer, AARMA Dental CRM
+Grievance Officer, Dental CRM
 
 ---
 

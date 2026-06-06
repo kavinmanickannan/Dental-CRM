@@ -1,31 +1,11 @@
-import { readFileSync } from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
-// js/utils.js is a classic script (no module exports -- see its header comment
-// for why) that defines its helpers as plain top-level `const`/`function`
-// bindings, loaded into the browser's global scope via <script src="...">.
-//
-// To unit-test it without changing how the app loads it, evaluate its source
-// in a function body and return the bindings it declares -- `new Function`
-// runs in the global scope (so `document` resolves to jsdom's global in tests,
-// just as it resolves to the browser's `document` in production), and the
-// appended `return { ... }` captures the const/function declarations via
-// ordinary lexical scoping.
+// js/utils.js is an ES module loaded by index.html (and imported by feature
+// modules) -- import it directly so the test suite exercises the exact same
+// bindings the browser does.
 const UTILS_PATH = path.resolve(process.cwd(), "js/utils.js");
-const SOURCE = readFileSync(UTILS_PATH, "utf-8");
-
-const EXPORTED_NAMES = [
-  "formatINR",
-  "formatCost",
-  "escapeHtml",
-  "normalizeCategory",
-  "calculateEarnedPoints",
-  "calculateRedeemFromPoints",
-  "formatFileSize",
-  "slugifyFormName",
-];
 
 export function loadUtils() {
-  const factory = new Function(`${SOURCE}\nreturn { ${EXPORTED_NAMES.join(", ")} };`);
-  return factory();
+  return import(pathToFileURL(UTILS_PATH).href);
 }

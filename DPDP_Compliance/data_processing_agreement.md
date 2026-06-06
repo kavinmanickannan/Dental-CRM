@@ -1,5 +1,5 @@
 # Data Processing Agreement (DPA)
-## Between AARMA Dental CRM and [Clinic Name]
+## Between Dental CRM and [Clinic Name]
 
 **Version:** 1.0  
 **Effective Date:** [INSERT DATE]  

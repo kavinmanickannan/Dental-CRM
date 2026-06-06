@@ -7,8 +7,8 @@ import { loadUtils } from "./helpers/loadUtils.js";
 
 let utils;
 
-beforeAll(() => {
-  utils = loadUtils();
+beforeAll(async () => {
+  utils = await loadUtils();
 });
 
 describe("calculateEarnedPoints", () => {
