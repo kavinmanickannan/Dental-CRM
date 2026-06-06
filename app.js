@@ -3211,18 +3211,13 @@ function updateBillingSummary() {
     return;
   }
   const outstanding = calculateOutstanding(patientId);
-  // Always reload reward points from storage to get latest value
-  const updatedRewardPoints = loadData(STORAGE_KEYS.rewards) || {};
-  // Update global rewardPoints object to keep it in sync
-  Object.assign(rewardPoints, updatedRewardPoints);
-  // Get points for this patient - prioritize storage value, ensure it's a number
-  const points = Number(updatedRewardPoints[patientId] !== undefined ? updatedRewardPoints[patientId] : (rewardPoints[patientId] || 0));
+  const points = Number(rewardPoints[patientId] || 0);
   const { rupeesToApply } = calculateRedeemFromPoints(points, outstanding);
   const redeemValue = rupeesToApply;
   elements.billingTotal.textContent = formatINR(outstanding);
   elements.billingPoints.textContent = `${points} pts`;
   elements.billingRewardValue.textContent = formatINR(redeemValue);
-  const canRedeem = redeemablePoints > 0;
+  const canRedeem = rupeesToApply > 0;
   elements.redeemCheckbox.disabled = !canRedeem;
   if (!canRedeem) {
     elements.redeemCheckbox.checked = false;
@@ -3239,9 +3234,7 @@ function updatePaymentAmount() {
   const redeem = elements.redeemCheckbox.checked;
   
   if (paymentType === "full") {
-    const updatedRewardPoints = loadData(STORAGE_KEYS.rewards) || {};
-    Object.assign(rewardPoints, updatedRewardPoints); // Sync global object
-    const points = Number(updatedRewardPoints[patientId] !== undefined ? updatedRewardPoints[patientId] : (rewardPoints[patientId] || 0));
+    const points = Number(rewardPoints[patientId] || 0);
     const { rupeesToApply } = calculateRedeemFromPoints(points, outstanding);
     const redeemValue = redeem ? rupeesToApply : 0;
     const paymentAmount = Math.round(Math.max(0, outstanding - redeemValue));
