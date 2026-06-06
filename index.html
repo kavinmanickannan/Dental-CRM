@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AAARMA Dental Clinic</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      // Initialize theme early to prevent flash
+      (function() {
+        const savedTheme = localStorage.getItem('dental_app_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      })();
+    </script>
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <h1>AARMA Dental Clinic</h1>
+        
+      </div>
+    </header>
+
+    <nav class="app-menu" role="navigation" aria-label="Main navigation">
+      <div>
+        <div class="menu-buttons">
+          <button data-section="dashboard" class="active" aria-current="page">Dashboard</button>
+          <button data-section="patients">Patients</button>
+          <button data-section="treatments">Treatments</button>
+          <button data-section="billing">Billing</button>
+          <button data-section="forms">Forms</button>
+        </div>
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+          <svg class="theme-icon sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="theme-icon moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </nav>
+
+    <main id="appContent">
+      <section id="dashboard" class="section active">
+        <div class="card dashboard-card">
+          <div class="card-header followup-header">
+            <div>
+              <h2>Follow-up Appointments</h2>
+              
+            </div>
+            <div class="followup-header-controls">
+              <span id="followUpSummary" class="followup-summary"></span>
+              <div class="followup-filters" role="group" aria-label="Follow-up filters">
+                <button type="button" class="followup-filter active" data-followup-filter="all" aria-pressed="true">All</button>
+                <button type="button" class="followup-filter" data-followup-filter="overdue" aria-pressed="false">Overdue</button>
+                <button type="button" class="followup-filter" data-followup-filter="upcoming" aria-pressed="false">Upcoming</button>
+              </div>
+            </div>
+          </div>
+          <div id="followUpList" class="followup-list">
+            <p class="empty-state">No follow-up appointments yet.</p>
+          </div>
+          <div class="pagination" id="followUpPagination"></div>
+        </div>
+
+        <div class="card dashboard-card">
+          <div class="card-header">
+            <h2>Clinic Overview</h2>
+            <select id="dashboardRange">
+              <option value="today">Today</option>
+              <option value="weekly">Last 7 Days</option>
+              <option value="monthly" selected>Last 30 Days</option>
+              <option value="lastMonth">Last Month</option>
+            </select>
+          </div>
+          <div class="dashboard-grid">
+            <div class="stat-card">
+              <p>Patients Served</p>
+              <strong id="statPatients">0</strong>
+              <span>Patients this period</span>
+            </div>
+            <div class="stat-card">
+              <p>Payments Received</p>
+              <strong id="statPayments">₹0.00</strong>
+              <span>Total cash inflow</span>
+            </div>
+            <div class="stat-card">
+              <p>Top Treatment</p>
+              <strong id="statTopTreatment">No data</strong>
+              <span>Most frequent procedure</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card dashboard-card">
+          <div class="card-header">
+            <h2>Payments by Method</h2>
+          </div>
+          <div id="paymentMethodStats" class="dashboard-grid">
+            <div class="stat-card">
+              <p>Cash</p>
+              <strong id="statCash">₹0.00</strong>
+            </div>
+            <div class="stat-card">
+              <p>Card</p>
+              <strong id="statCard">₹0.00</strong>
+            </div>
+            <div class="stat-card">
+              <p>UPI</p>
+              <strong id="statUPI">₹0.00</strong>
+            </div>
+            <div class="stat-card">
+              <p>Other</p>
+              <strong id="statOther">₹0.00</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="card dashboard-card">
+          <div class="card-header">
+            <h2>Dentist Performance</h2>
+          </div>
+          <div id="dentistStatsContainer" class="dentist-stats-grid">
+            <p class="empty-state">No treatment data available</p>
+          </div>
+          <div id="dentistDetailsPanel" class="status-patients-panel hidden">
+            <div class="status-panel-header">
+              <h3 id="dentistDetailsTitle">Dentist Details</h3>
+              <button type="button" class="secondary pill" id="closeDentistDetailsPanel">Close</button>
+            </div>
+            <div id="dentistDetailsContent" class="status-patients-content">
+              <!-- Dentist details will be rendered here -->
+            </div>
+          </div>
+        </div>
+
+        <div class="card dashboard-card">
+          <div class="card-header">
+            <h2>Treatment Status Overview</h2>
+          </div>
+          <div id="treatmentStatusContainer" class="treatment-status-grid">
+            <p class="empty-state">No treatment data available</p>
+          </div>
+          <div id="statusPatientsPanel" class="status-patients-panel hidden">
+            <div class="status-panel-header">
+              <h3 id="statusPanelTitle">Patients</h3>
+              <button type="button" class="secondary pill" id="closeStatusPanel">Close</button>
+            </div>
+            <div id="statusPatientsContent" class="status-patients-content">
+              <!-- Patient list will be rendered here -->
+            </div>
+          </div>
+        </div>
+        <div class="card dashboard-card backup-reminder">
+          <div class="backup-reminder-content">
+            <div>
+              <h2>Backup Reminder</h2>
+              <p class="hint-text">Export a backup after major updates to avoid data loss.</p>
+            </div>
+            <div class="backup-reminder-actions">
+              <input type="file" id="dashboardImportInput" accept=".json" hidden />
+              <button type="button" class="secondary pill" id="dashboardExportBtn">
+                Export All Data
+              </button>
+              <button type="button" class="secondary pill" id="dashboardImportBtn">
+                Import Backup
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="patients" class="section">
+        <div class="patients-layout">
+          <div class="card form-card patients-form-card">
+            <h2>Add / Update Patient</h2>
+            <form id="patientForm">
+              <div class="form-row">
+                <label for="patientName">Full Name</label>
+                <input type="text" id="patientName" required />
+              </div>
+              <div class="form-row">
+                <label for="patientContact">Contact Number</label>
+                <input type="tel" id="patientContact" required />
+              </div>
+              <div class="form-row">
+                <label for="patientDOB">Date of Birth</label>
+                <input type="date" id="patientDOB" required />
+              </div>
+              <div class="form-row">
+                <label for="patientSex">Sex</label>
+                <select id="patientSex" required>
+                  <option value="">Select...</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label for="patientAddress">Address</label>
+                <textarea id="patientAddress" rows="2" required></textarea>
+              </div>
+            <div class="form-row">
+              <label for="patientNotes">Patient History</label>
+              <textarea id="patientNotes" rows="3" placeholder="Add any additional details about this patient..."></textarea>
+            </div>
+              <div class="form-actions">
+                <button type="submit">Save Patient</button>
+                <button type="reset" class="secondary" id="cancelEditPatient">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card table-card patients-table-card">
+            <div class="card-header patient-records-header">
+              <h2>Patient Records</h2>
+              <div class="patient-records-controls">
+                <div class="search-bar">
+                  <label for="globalSearch" class="sr-only">Search patients</label>
+                  <input
+                    type="search"
+                    id="globalSearch"
+                    placeholder="Search patient by name or ID..."
+                  />
+                </div>
+                <span id="patientStats"></span>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Contact</th>
+                    <th>DOB</th>
+                    <th>Age</th>
+                    <th>Sex</th>
+                    <th>Address</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="patientTableBody">
+                  <tr>
+                    <td colspan="8" class="empty-state">
+                      No patients yet. Add your first patient to get started.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination" id="patientPagination"></div>
+          </div>
+        </div>
+
+        <div id="patientDetailPanel" class="card detail-card hidden">
+          <div class="card-header">
+            <h2>Patient Snapshot</h2>
+            <button type="button" class="secondary pill" id="closePatientDetail">
+              Close
+            </button>
+          </div>
+          <div id="patientDetailContent" class="detail-body empty-state">
+            Select a patient name or search by ID to view details.
+          </div>
+        </div>
+      </section>
+
+      <section id="treatments" class="section">
+        <div class="treatments-layout patients-layout">
+          <div class="card form-card treatments-form-card">
+            <div class="form-card-header treatments-form-header">
+              <h2>Add / Update Treatment</h2>
+              <button type="button" class="secondary pill" id="openTreatmentMaster">Treatment Master</button>
+            </div>
+            <form id="treatmentForm">
+              <div class="form-row">
+                <label for="treatmentPatient">Patient (Search by Name or ID)</label>
+                <input 
+                  type="text" 
+                  id="treatmentPatient" 
+                  placeholder="Type patient name or ID to search..."
+                  autocomplete="off"
+                  required 
+                />
+                <input type="hidden" id="treatmentPatientId" />
+                <div id="treatmentPatientResults" class="search-results"></div>
+              </div>
+              <div class="form-row">
+                <label for="treatmentCategory">Treatment Category</label>
+                <select id="treatmentCategory" required>
+                  <option value="">Select category...</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label for="treatmentDescription">Treatment Description</label>
+                <input type="text" id="treatmentDescription" list="treatmentMasterOptions" required />
+                <datalist id="treatmentMasterOptions"></datalist>
+              </div>
+              <div class="form-row">
+                <label for="treatmentDate">Date</label>
+                <input type="date" id="treatmentDate" required />
+              </div>
+              <div class="form-row">
+                <label for="treatmentCost">Cost (₹) <span style="font-weight: normal; color: #6c7a89;">(Optional)</span></label>
+                <input type="number" id="treatmentCost" min="0" step="0.01" />
+              </div>
+              <div class="form-row">
+                <label for="treatmentDentist">Dentist Name</label>
+                <input type="text" id="treatmentDentist" required />
+              </div>
+              <div class="form-row">
+                <label for="treatmentStatus">Status</label>
+                <select id="treatmentStatus" required>
+                  <option value="Scheduled">Scheduled</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label for="treatmentNextVisit">Next Appointment <span id="nextVisitRequired" class="required-indicator hidden">* Required</span></label>
+                <input type="date" id="treatmentNextVisit" />
+              </div>
+              <div class="form-actions">
+                <button type="submit">Save Treatment</button>
+                <button type="reset" class="secondary" id="cancelEditTreatment">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card table-card treatments-table-card">
+            <div class="card-header patient-records-header">
+              <h2>Treatment Records</h2>
+              <div class="patient-records-controls">
+                <span id="treatmentStats"></span>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Patient</th>
+                    <th>Treatment Description</th>
+                    <th>Date <span class="sort-icon" id="treatmentDateSortIcon" onclick="toggleTreatmentDateSort()" title="Click to sort by date">↕</span></th>
+                    <th>Cost (₹)</th>
+                    <th>Dentist</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="treatmentTableBody">
+                  <tr>
+                    <td colspan="8" class="empty-state">
+                      No treatments recorded yet.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination" id="treatmentPagination"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="billing" class="section">
+        <div class="billing-layout patients-layout">
+          <div class="card form-card billing-form-card">
+            <h2>Billing & Rewards</h2>
+            <form id="billingForm">
+              <div class="form-row">
+                <label for="billingPatient">Patient (Search by Name or ID)</label>
+                <input 
+                  type="text" 
+                  id="billingPatient" 
+                  placeholder="Type patient name or ID to search..."
+                  autocomplete="off"
+                  required 
+                />
+                <input type="hidden" id="billingPatientId" />
+                <div id="billingPatientResults" class="search-results"></div>
+              </div>
+              <div class="summary-row">
+                <div>
+                  <p>Outstanding (₹)</p>
+                  <strong id="billingTotal">₹0.00</strong>
+                </div>
+                <div>
+                  <p>Reward Wallet (prev txns)</p>
+                  <strong id="billingPoints">0 pts</strong>
+                </div>
+                <div>
+                  <p>Redeemable Value (₹)</p>
+                  <strong id="billingRewardValue">₹0.00</strong>
+                </div>
+              </div>
+              <div class="form-row">
+                <label for="paymentType">Payment Type</label>
+                <select id="paymentType" required>
+                  <option value="full">Full Payment</option>
+                  <option value="partial">Partial Payment</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label for="paymentMethod">Payment Method</label>
+                <select id="paymentMethod" required>
+                  <option value="cash">Cash</option>
+                  <option value="card">Card</option>
+                  <option value="upi">UPI</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label for="billingPayment">Payment Amount (₹)</label>
+                <input type="number" id="billingPayment" min="0" step="1" required />
+                <small style="color: #6c7a89; font-size: 0.85rem; margin-top: 0.25rem;">Amount will auto-update based on outstanding balance and selected payment type</small>
+              </div>
+              <div class="form-row checkbox-row">
+                <input type="checkbox" id="redeemPoints" />
+                <label for="redeemPoints">Redeem reward points</label>
+              </div>
+              <div class="form-row">
+                <label for="manualRewardPoints">Add Reward Points (Referral / Manual)</label>
+                <div class="manual-reward-row">
+                  <input type="number" id="manualRewardPoints" min="0" step="1" placeholder="e.g., 50" />
+                  <button type="button" class="secondary pill" id="addManualRewardPointsBtn">
+                    Add Points
+                  </button>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit">Process Payment</button>
+              </div>
+            <div class="form-actions">
+              <button type="button" class="secondary pill hidden" id="generateInvoiceBtn">
+                Generate Invoice (PDF)
+              </button>
+            </div>
+            </form>
+          </div>
+
+          <div class="card table-card billing-table-card">
+            <div class="card-header patient-records-header">
+              <h2>Billing History</h2>
+              <div class="patient-records-controls">
+                <div class="search-bar">
+                  <label for="billingSearch" class="sr-only">Search billing history</label>
+                  <input
+                    type="search"
+                    id="billingSearch"
+                    placeholder="Search by patient name or ID..."
+                  />
+                </div>
+                <span id="billingStats"></span>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Patient</th>
+                    <th>Amount Paid (₹)</th>
+                    <th>Payment Method</th>
+                    <th>Points Earned</th>
+                    <th>Points Redeemed</th>
+                  <th>Reward Credit (₹)</th>
+                  </tr>
+                </thead>
+                <tbody id="billingTableBody">
+                  <tr>
+                  <td colspan="7" class="empty-state">
+                      No billing history yet.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination" id="billingPagination"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="forms" class="section">
+        <div class="card forms-card">
+          <div class="card-header forms-header">
+            <div>
+              <h2>Forms Library</h2>
+              <p class="hint-text">Upload templates and print when needed.</p>
+            </div>
+            <div class="forms-header-actions">
+              <span class="hint-text">Print-ready: PDF or images.</span>
+              <button type="button" class="secondary pill" id="addFormTypeButton">Add Form</button>
+            </div>
+          </div>
+          <div id="formsList" class="forms-list"></div>
+        </div>
+      </section>
+
+      <div id="addFormTypeModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="addFormTypeTitle">
+        <div class="modal-content" style="max-width: 520px;">
+          <div class="modal-header">
+            <h3 id="addFormTypeTitle">Add New Form Type</h3>
+            <div class="modal-actions">
+              <button type="button" class="secondary pill" id="closeAddFormType">Close</button>
+            </div>
+          </div>
+          <div class="modal-body">
+            <form id="addFormTypeForm" class="form-card">
+              <div class="form-row">
+                <label for="formTypeName">Form Name</label>
+                <input type="text" id="formTypeName" placeholder="e.g., Discharge Summary" required />
+              </div>
+              <div class="form-row">
+                <label for="formTypeDescription">Description</label>
+                <textarea id="formTypeDescription" rows="3" placeholder="Short guidance for staff (optional)."></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="submit">Add Form</button>
+                <button type="button" class="secondary" id="cancelAddFormType">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+
+    <div id="treatmentMasterModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="treatmentMasterTitle">
+      <div class="modal-content modal-large">
+        <div class="modal-header">
+          <h3 id="treatmentMasterTitle">Treatment Master</h3>
+          <div class="modal-actions">
+            <button type="button" class="secondary pill" id="treatmentMasterNew">Add New Treatment</button>
+            <button type="button" class="secondary pill" id="closeTreatmentMaster">Close</button>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="treatment-master-layout">
+            <div class="card treatment-master-form-card">
+              <div class="card-header">
+                <h4>Add / Edit Treatment</h4>
+                <span class="hint-text">Save changes instantly to the master list.</span>
+              </div>
+              <form id="treatmentMasterForm" class="treatment-master-form">
+                <div class="form-row">
+                  <label for="treatmentMasterCategory">Category</label>
+                  <input type="text" id="treatmentMasterCategory" list="treatmentMasterCategoryOptions" required />
+                  <datalist id="treatmentMasterCategoryOptions"></datalist>
+                </div>
+                <div class="form-row">
+                  <label for="treatmentMasterName">Treatment Name</label>
+                  <input type="text" id="treatmentMasterName" required />
+                </div>
+                <div class="form-row">
+                  <label for="treatmentMasterPrice">Default Price (₹)</label>
+                  <input type="number" id="treatmentMasterPrice" min="0" step="0.01" required />
+                </div>
+                <div class="form-actions">
+                  <button type="submit" id="treatmentMasterSubmit">Save</button>
+                  <button type="button" class="secondary" id="treatmentMasterCancel">Clear</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="card table-card treatment-master-table">
+              <div class="card-header">
+                <div>
+                  <h4>Active Treatments</h4>
+                  <p class="hint-text">Search and manage treatments below.</p>
+                </div>
+                <div class="search-bar">
+                  <label for="treatmentMasterSearch" class="sr-only">Search treatments</label>
+                  <input
+                    type="search"
+                    id="treatmentMasterSearch"
+                    placeholder="Search treatment by name..."
+                  />
+                </div>
+              </div>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Category</th>
+                      <th>Name</th>
+                      <th>Price (₹)</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="treatmentMasterTableBody">
+                    <tr>
+                      <td colspan="5" class="empty-state">No treatments yet. Add your first treatment.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="pagination" id="treatmentMasterPagination"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
+

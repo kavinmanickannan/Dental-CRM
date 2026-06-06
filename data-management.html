@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Management - AARMA Dental Clinic</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .data-management-container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .data-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-item {
+        background: var(--card);
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        text-align: center;
+      }
+
+      .stat-item .label {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-item .value {
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .action-section {
+        background: var(--card);
+        padding: 2rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        margin-bottom: 1.5rem;
+      }
+
+      .action-section h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        color: var(--text);
+      }
+
+      .action-section p {
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+      }
+
+      .btn-secondary {
+        background: transparent;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-secondary:hover {
+        background: rgba(35, 116, 171, 0.1);
+      }
+
+      .btn-danger {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      .btn-danger:hover {
+        background: #b03d3d;
+      }
+
+      .file-input-wrapper {
+        position: relative;
+        display: inline-block;
+      }
+
+      .file-input-wrapper input[type="file"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .warning-box {
+        background: rgba(204, 75, 75, 0.1);
+        border: 1px solid var(--danger);
+        border-radius: 6px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        color: var(--danger);
+      }
+
+      .warning-box strong {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      .success-message {
+        background: rgba(20, 184, 166, 0.1);
+        border: 1px solid var(--accent);
+        border-radius: 6px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        color: var(--accent);
+        display: none;
+      }
+
+      .success-message.show {
+        display: block;
+      }
+
+      .info-box {
+        background: rgba(35, 116, 171, 0.1);
+        border: 1px solid var(--primary);
+        border-radius: 6px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        color: var(--primary);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <h1>AARMA Dental Clinic</h1>
+        <p class="subtitle">Data Management</p>
+      </div>
+    </header>
+
+    <main>
+      <div class="data-management-container">
+        <div id="successMessage" class="success-message"></div>
+
+        <!-- Data Statistics -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Data Statistics</h2>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <select id="timeframeFilter" style="padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem;">
+                <option value="allTime">All Time</option>
+                <option value="today">Today</option>
+                <option value="last7Days">Last 7 Days</option>
+                <option value="last30Days">Last 30 Days</option>
+              </select>
+              <button class="btn-secondary" onclick="refreshStatistics()">Refresh</button>
+            </div>
+          </div>
+          <div id="dataStats" class="data-stats-grid">
+            <div class="stat-item">
+              <div class="label">Patients</div>
+              <div class="value" id="statPatientsCount">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="label">Treatments</div>
+              <div class="value" id="statTreatmentsCount">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="label">Billing Records</div>
+              <div class="value" id="statBillingCount">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="label">Total Revenue</div>
+              <div class="value" id="statTotalRevenue">₹0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Data -->
+        <div class="action-section">
+          <h3>Export Data</h3>
+          <p>
+            Export all your clinic data (patients, treatments, billing history, and reward points) 
+            to a JSON file. This file can be used as a backup or imported into another system.
+          </p>
+          <div class="button-group">
+            <button class="btn-primary" onclick="exportData()">Export All Data</button>
+          </div>
+        </div>
+
+        <!-- Import Data -->
+        <div class="action-section">
+          <h3>Import Data</h3>
+          <p>
+            Import data from a previously exported JSON file. <strong>Warning:</strong> This will 
+            replace all existing data in the system.
+          </p>
+          <div class="warning-box">
+            <strong>⚠️ Warning</strong>
+            Importing data will completely replace your current database. Make sure to export 
+            your current data as a backup before importing.
+          </div>
+          <div class="button-group">
+            <div class="file-input-wrapper">
+              <input type="file" id="importFileInput" accept=".json" />
+              <button class="btn-primary" onclick="document.getElementById('importFileInput').click()">
+                Choose File & Import
+              </button>
+            </div>
+          </div>
+          <div id="importPreview" style="margin-top: 1rem; display: none;">
+            <div class="info-box">
+              <strong>File Preview:</strong>
+              <div id="importPreviewContent"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clear Data -->
+        <div class="action-section">
+          <h3>Clear All Data</h3>
+          <p>
+            Permanently delete all data from the system. This action cannot be undone. 
+            Make sure you have exported a backup before proceeding.
+          </p>
+          <div class="warning-box">
+            <strong>⚠️ Critical Warning</strong>
+            This will delete ALL patients, treatments, billing records, and reward points. 
+            This action is permanent and cannot be reversed. Export your data first!
+          </div>
+          <div class="button-group">
+            <button class="btn-danger" onclick="clearAllData()">Clear All Data</button>
+          </div>
+        </div>
+
+        <!-- Data Validation -->
+        <div class="action-section">
+          <h3>Data Validation</h3>
+          <p>
+            Check the integrity of your data for any inconsistencies or errors.
+          </p>
+          <div class="button-group">
+            <button class="btn-secondary" onclick="validateData()">Validate Data</button>
+          </div>
+          <div id="validationResults" style="margin-top: 1rem; display: none;">
+            <div id="validationResultsContent"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script src="data-management.js"></script>
+  </body>
+</html>
+

@@ -1,0 +1,12 @@
+node_modules/
+*.lnk
+*.log
+.DS_Store
+Thumbs.db
+
+# Patient data exports and uploaded consent files contain real PII (names,
+# contact numbers, DOB, addresses, signed forms). Never commit these to git --
+# history is effectively permanent and hard to scrub of sensitive data.
+*Dental-Data-*.json
+impot.json
+Consent forms/
