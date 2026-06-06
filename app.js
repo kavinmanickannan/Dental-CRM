@@ -1198,6 +1198,53 @@ function attachHandlers() {
       if (elements.billingPatientResults) elements.billingPatientResults.classList.remove("show");
     }
   });
+
+  // Delegated handler for table/card action buttons rendered into innerHTML.
+  // Using data-* attributes + delegation (rather than inline onclick="fn('${value}')")
+  // avoids breaking out of the attribute -- and the resulting injection -- when a
+  // user-entered value (patient name, dentist name, etc.) contains quotes or HTML.
+  document.addEventListener("click", (e) => {
+    const target = e.target.closest("[data-action]");
+    if (!target) return;
+    const { action, id, status, dentist, pageType, page } = target.dataset;
+    switch (action) {
+      case "view-patient":
+        viewPatient(id);
+        break;
+      case "edit-patient":
+        editPatient(id);
+        break;
+      case "delete-patient":
+        deletePatient(id);
+        break;
+      case "edit-treatment":
+        editTreatment(id);
+        break;
+      case "delete-treatment":
+        deleteTreatment(id);
+        break;
+      case "edit-treatment-master":
+        editTreatmentMaster(id);
+        break;
+      case "show-status":
+        showPatientsByStatus(status);
+        break;
+      case "show-dentist":
+        showDentistDetails(dentist);
+        break;
+      case "change-page":
+        changePage(pageType, Number(page));
+        break;
+      default:
+        break;
+    }
+  });
+
+  document.addEventListener("change", (e) => {
+    const target = e.target.closest("[data-action='toggle-treatment-master']");
+    if (!target) return;
+    toggleTreatmentMasterStatus(target.dataset.id, target.checked);
+  });
   elements.redeemCheckbox.addEventListener("change", async () => {
     // Update payment amount first, then update summary
     await updatePaymentAmountOnRedeemChange();
@@ -1421,13 +1468,13 @@ function renderTreatmentMasterTable() {
         <td>${formatINR(item.default_price)}</td>
         <td>
           <label class="status-toggle">
-            <input type="checkbox" ${item.is_active ? "checked" : ""} onchange="toggleTreatmentMasterStatus('${item.id}', this.checked)" />
+            <input type="checkbox" ${item.is_active ? "checked" : ""} data-action="toggle-treatment-master" data-id="${escapeHtml(item.id)}" />
             <span class="status-slider"></span>
             <span class="status-text">${item.is_active ? "Active" : "Inactive"}</span>
           </label>
         </td>
         <td class="actions">
-          <button onclick="editTreatmentMaster('${item.id}')">Edit</button>
+          <button data-action="edit-treatment-master" data-id="${escapeHtml(item.id)}">Edit</button>
         </td>
       </tr>
     `)
@@ -1637,20 +1684,20 @@ function renderPatients() {
     .map(
       (patient) => `
         <tr>
-          <td>${patient.id}</td>
+          <td>${escapeHtml(patient.id)}</td>
           <td>
-            <button class="link-button" data-view="${patient.id}" onclick="viewPatient('${patient.id}')">
-              ${patient.name}
+            <button class="link-button" data-action="view-patient" data-id="${escapeHtml(patient.id)}">
+              ${escapeHtml(patient.name)}
             </button>
           </td>
-          <td>${patient.contact}</td>
-          <td>${patient.dob}</td>
-          <td>${patient.age}</td>
-          <td>${patient.sex ? patient.sex.charAt(0).toUpperCase() + patient.sex.slice(1) : '-'}</td>
-          <td>${patient.address}</td>
+          <td>${escapeHtml(patient.contact)}</td>
+          <td>${escapeHtml(patient.dob)}</td>
+          <td>${escapeHtml(patient.age)}</td>
+          <td>${patient.sex ? escapeHtml(patient.sex.charAt(0).toUpperCase() + patient.sex.slice(1)) : '-'}</td>
+          <td>${escapeHtml(patient.address)}</td>
           <td class="actions">
-            <button onclick="editPatient('${patient.id}')">Edit</button>
-            <button class="danger" onclick="deletePatient('${patient.id}')">Delete</button>
+            <button data-action="edit-patient" data-id="${escapeHtml(patient.id)}">Edit</button>
+            <button class="danger" data-action="delete-patient" data-id="${escapeHtml(patient.id)}">Delete</button>
           </td>
         </tr>
       `
@@ -1664,7 +1711,7 @@ function renderPatients() {
   }
 }
 
-window.editPatient = function (patientId) {
+function editPatient(patientId) {
   const patient = patients.find((p) => p.id === patientId);
   if (!patient) return;
   editingPatientId = patientId;
@@ -1677,7 +1724,7 @@ window.editPatient = function (patientId) {
   showToast(`Editing ${patient.name}`);
 };
 
-window.deletePatient = function (patientId) {
+function deletePatient(patientId) {
   if (
     !confirm(
       "Delete this patient and all related treatments, billing, and rewards?"
@@ -1988,7 +2035,7 @@ function setupConsentSections(patientTreatments, patientId) {
   });
 }
 
-window.viewPatient = function (patientId) {
+function viewPatient(patientId) {
   const patient = patients.find((p) => p.id === patientId);
   if (!patient) {
     elements.patientDetailContent.classList.add("empty-state");
@@ -2005,14 +2052,14 @@ window.viewPatient = function (patientId) {
           .map(
             (treatment) => `
               <div class="treatment-detail-item">
-                <h4>${treatment.description} • ${formatCost(treatment.cost)}</h4>
+                <h4>${escapeHtml(treatment.description)} • ${formatCost(treatment.cost)}</h4>
                 <div class="detail-meta">
-                  <span>Date: ${treatment.date}</span>
-                  <span>Dentist: ${treatment.dentist}</span>
-                  <span>Status: ${treatment.status}</span>
-                  <span>Next: ${treatment.nextVisit || "N/A"}</span>
+                  <span>Date: ${escapeHtml(treatment.date)}</span>
+                  <span>Dentist: ${escapeHtml(treatment.dentist)}</span>
+                  <span>Status: ${escapeHtml(treatment.status)}</span>
+                  <span>Next: ${escapeHtml(treatment.nextVisit || "N/A")}</span>
                 </div>
-                <div class="consent-section" data-consent-section data-treatment-id="${treatment.id}">
+                <div class="consent-section" data-consent-section data-treatment-id="${escapeHtml(treatment.id)}">
                   <div class="consent-header">
                     <h5>Consent Form</h5>
                     <span class="consent-status" data-consent-status>Checking...</span>
@@ -2038,17 +2085,19 @@ window.viewPatient = function (patientId) {
 
   elements.patientDetailContent.classList.remove("empty-state");
   const sexDisplay = patient.sex ? patient.sex.charAt(0).toUpperCase() + patient.sex.slice(1) : "Not specified";
-  const notesDisplay = patient.notes ? `<div class="notes-section"><h3>Patient History</h3><p>${patient.notes}</p></div>` : "";
-  
+  const notesDisplay = patient.notes
+    ? `<div class="notes-section"><h3>Patient History</h3><p>${escapeHtml(patient.notes)}</p></div>`
+    : "";
+
   elements.patientDetailContent.innerHTML = `
     <div class="detail-grid">
-      <div><span>Patient ID</span><strong>${patient.id}</strong></div>
-      <div><span>Name</span><strong>${patient.name}</strong></div>
-      <div><span>Age</span><strong>${patient.age}</strong></div>
-      <div><span>Sex</span><strong>${sexDisplay}</strong></div>
-      <div><span>Contact</span><strong>${patient.contact}</strong></div>
-      <div><span>DOB</span><strong>${patient.dob}</strong></div>
-      <div><span>Address</span><strong>${patient.address}</strong></div>
+      <div><span>Patient ID</span><strong>${escapeHtml(patient.id)}</strong></div>
+      <div><span>Name</span><strong>${escapeHtml(patient.name)}</strong></div>
+      <div><span>Age</span><strong>${escapeHtml(patient.age)}</strong></div>
+      <div><span>Sex</span><strong>${escapeHtml(sexDisplay)}</strong></div>
+      <div><span>Contact</span><strong>${escapeHtml(patient.contact)}</strong></div>
+      <div><span>DOB</span><strong>${escapeHtml(patient.dob)}</strong></div>
+      <div><span>Address</span><strong>${escapeHtml(patient.address)}</strong></div>
     </div>
     ${notesDisplay}
     <div class="treatment-history-section">
@@ -2101,7 +2150,7 @@ function updateTreatmentStatus(start, end) {
     .map(([status, count]) => {
       const color = statusColors[status] || "#95a5a6";
       return `
-        <div class="status-card" onclick="showPatientsByStatus('${status}')" style="border-left-color: ${color}">
+        <div class="status-card" data-action="show-status" data-status="${escapeHtml(status)}" style="border-left-color: ${color}">
           <div class="status-header">
             <span class="status-label">${status}</span>
             <span class="status-count">${count}</span>
@@ -2303,7 +2352,7 @@ function updateFollowUpPanel() {
   }
 }
 
-window.showPatientsByStatus = function(status) {
+function showPatientsByStatus(status) {
   if (!elements.statusPatientsPanel || !elements.statusPatientsContent || !elements.statusPanelTitle) return;
   
   // Track the currently open status
@@ -2368,17 +2417,17 @@ window.showPatientsByStatus = function(status) {
     .map(({ patient, treatments: patientTreatments }) => {
       const phoneNumber = patient.contact || "N/A";
       const phoneLink = phoneNumber !== "N/A" ? `tel:${phoneNumber}` : "#";
-      
+
       return `
         <div class="status-patient-card">
           <div class="patient-info-main">
             <div class="patient-name-section">
-              <strong>${patient.name}</strong>
-              <span class="patient-id">${patient.id}</span>
+              <strong>${escapeHtml(patient.name)}</strong>
+              <span class="patient-id">${escapeHtml(patient.id)}</span>
             </div>
             <div class="patient-contact-section">
-              <a href="${phoneLink}" class="phone-link" ${phoneNumber === "N/A" ? 'onclick="return false;"' : ''}>
-                ${phoneNumber}
+              <a href="${escapeHtml(phoneLink)}" class="phone-link" ${phoneNumber === "N/A" ? 'onclick="return false;"' : ''}>
+                ${escapeHtml(phoneNumber)}
               </a>
             </div>
           </div>
@@ -2387,8 +2436,8 @@ window.showPatientsByStatus = function(status) {
             <div class="treatment-details">
               ${patientTreatments.map(t => `
                 <div class="treatment-item">
-                  <span>${t.description}</span>
-                  <span class="treatment-date">${t.date}</span>
+                  <span>${escapeHtml(t.description)}</span>
+                  <span class="treatment-date">${escapeHtml(t.date)}</span>
                 </div>
               `).join("")}
             </div>
@@ -2402,7 +2451,7 @@ window.showPatientsByStatus = function(status) {
   elements.statusPatientsPanel.scrollIntoView({ behavior: "smooth" });
 }
 
-window.copyPhoneNumber = function(phoneNumber) {
+function copyPhoneNumber(phoneNumber) {
   if (!phoneNumber || phoneNumber === "N/A") return;
   
   navigator.clipboard.writeText(phoneNumber).then(() => {
@@ -2412,7 +2461,7 @@ window.copyPhoneNumber = function(phoneNumber) {
   });
 }
 
-window.showDentistDetails = function(dentistName) {
+function showDentistDetails(dentistName) {
   if (!elements.dentistDetailsPanel || !elements.dentistDetailsContent || !elements.dentistDetailsTitle) return;
   
   // Track the currently open dentist
@@ -2518,12 +2567,12 @@ window.showDentistDetails = function(dentistName) {
         <div class="status-patient-card">
           <div class="patient-info-main">
             <div class="patient-name-section">
-              <strong>${patient.name}${newPatientBadge}</strong>
-              <span class="patient-id">${patient.id}</span>
+              <strong>${escapeHtml(patient.name)}${newPatientBadge}</strong>
+              <span class="patient-id">${escapeHtml(patient.id)}</span>
             </div>
             <div class="patient-contact-section">
-              <a href="${phoneLink}" class="phone-link" ${phoneNumber === "N/A" ? 'onclick="return false;"' : ''}>
-                ${phoneNumber}
+              <a href="${escapeHtml(phoneLink)}" class="phone-link" ${phoneNumber === "N/A" ? 'onclick="return false;"' : ''}>
+                ${escapeHtml(phoneNumber)}
               </a>
             </div>
           </div>
@@ -2532,10 +2581,10 @@ window.showDentistDetails = function(dentistName) {
             <div class="treatment-details">
               ${patientTreatments.map(t => `
                 <div class="treatment-item">
-                  <span>${t.description || 'N/A'}</span>
-                  <span class="treatment-date">${t.date}</span>
+                  <span>${escapeHtml(t.description || 'N/A')}</span>
+                  <span class="treatment-date">${escapeHtml(t.date)}</span>
                   <span style="margin-left: 0.5rem; color: var(--primary);">${formatCost(t.cost)}</span>
-                  ${t.status ? `<span style="margin-left: 0.5rem; padding: 0.2rem 0.5rem; background: ${t.status === 'Completed' ? 'var(--accent)' : t.status === 'Cancelled' ? 'var(--danger)' : 'var(--primary)'}; color: white; border-radius: 4px; font-size: 0.75rem;">${t.status}</span>` : ''}
+                  ${t.status ? `<span style="margin-left: 0.5rem; padding: 0.2rem 0.5rem; background: ${t.status === 'Completed' ? 'var(--accent)' : t.status === 'Cancelled' ? 'var(--danger)' : 'var(--primary)'}; color: white; border-radius: 4px; font-size: 0.75rem;">${escapeHtml(t.status)}</span>` : ''}
                 </div>
               `).join("")}
             </div>
@@ -2671,38 +2720,41 @@ function renderPagination(container, currentPage, totalPages, type, perPage = re
 
   let html = "";
   
+  const pageButton = (page, label = page, extraClass = "") =>
+    `<button data-action="change-page" data-page-type="${escapeHtml(type)}" data-page="${page}" class="${extraClass}">${label}</button>`;
+
   // Previous button
-  html += `<button onclick="changePage('${type}', ${currentPage - 1})" ${currentPage === 1 ? "disabled" : ""}>Previous</button>`;
+  html += `<button data-action="change-page" data-page-type="${escapeHtml(type)}" data-page="${currentPage - 1}" ${currentPage === 1 ? "disabled" : ""}>Previous</button>`;
 
   // Page numbers
   const maxVisible = 5;
   let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
   let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-  
+
   if (endPage - startPage < maxVisible - 1) {
     startPage = Math.max(1, endPage - maxVisible + 1);
   }
 
   if (startPage > 1) {
-    html += `<button onclick="changePage('${type}', 1)">1</button>`;
+    html += pageButton(1);
     if (startPage > 2) {
       html += `<span class="pagination-info">...</span>`;
     }
   }
 
   for (let i = startPage; i <= endPage; i++) {
-    html += `<button onclick="changePage('${type}', ${i})" class="${i === currentPage ? "active" : ""}">${i}</button>`;
+    html += pageButton(i, i, i === currentPage ? "active" : "");
   }
 
   if (endPage < totalPages) {
     if (endPage < totalPages - 1) {
       html += `<span class="pagination-info">...</span>`;
     }
-    html += `<button onclick="changePage('${type}', ${totalPages})">${totalPages}</button>`;
+    html += pageButton(totalPages);
   }
 
   // Next button
-  html += `<button onclick="changePage('${type}', ${currentPage + 1})" ${currentPage === totalPages ? "disabled" : ""}>Next</button>`;
+  html += `<button data-action="change-page" data-page-type="${escapeHtml(type)}" data-page="${currentPage + 1}" ${currentPage === totalPages ? "disabled" : ""}>Next</button>`;
 
   // Page info
   let totalRecords = totalRecordsOverride;
@@ -2733,7 +2785,7 @@ function renderPagination(container, currentPage, totalPages, type, perPage = re
 }
 
 // Change page function
-window.changePage = function(type, page) {
+function changePage(type, page) {
   if (type === "patient") {
     const filtered = patients.filter((patient) => {
       if (!currentFilter) return true;
@@ -2889,7 +2941,7 @@ function handleTreatmentMasterSubmit(event) {
   refreshTreatmentMasterOptions();
 }
 
-window.editTreatmentMaster = function(id) {
+function editTreatmentMaster(id) {
   const target = treatmentMasters.find((item) => item.id === id);
   if (!target) return;
   editingTreatmentMasterId = id;
@@ -2900,7 +2952,7 @@ window.editTreatmentMaster = function(id) {
   if (elements.treatmentMasterCategory) elements.treatmentMasterCategory.focus();
 };
 
-window.deleteTreatmentMaster = function(id) {
+function deleteTreatmentMaster(id) {
   const target = treatmentMasters.find((item) => item.id === id);
   if (!target) return;
   if (!confirm(`Hide ${target.treatment_name}? It will no longer appear in treatment selection.`)) {
@@ -2916,7 +2968,7 @@ window.deleteTreatmentMaster = function(id) {
   showToast("Treatment removed from active list.");
 };
 
-window.toggleTreatmentMasterStatus = function(id, isActive) {
+function toggleTreatmentMasterStatus(id, isActive) {
   const target = treatmentMasters.find((item) => item.id === id);
   if (!target) return;
   target.is_active = Boolean(isActive);
@@ -2964,15 +3016,15 @@ function renderTreatments() {
       const patientName = getPatientName(treatment.patientId);
       return `
         <tr>
-          <td>${patientName}</td>
-          <td>${treatment.description}</td>
-          <td>${treatment.date}</td>
+          <td>${escapeHtml(patientName)}</td>
+          <td>${escapeHtml(treatment.description)}</td>
+          <td>${escapeHtml(treatment.date)}</td>
           <td>${formatCost(treatment.cost)}</td>
-          <td>${treatment.dentist}</td>
-          <td>${treatment.status}</td>
+          <td>${escapeHtml(treatment.dentist)}</td>
+          <td>${escapeHtml(treatment.status)}</td>
           <td class="actions">
-            <button onclick="editTreatment('${treatment.id}')">Edit</button>
-            <button class="danger" onclick="deleteTreatment('${treatment.id}')">Delete</button>
+            <button data-action="edit-treatment" data-id="${escapeHtml(treatment.id)}">Edit</button>
+            <button class="danger" data-action="delete-treatment" data-id="${escapeHtml(treatment.id)}">Delete</button>
           </td>
         </tr>
       `;
@@ -2988,7 +3040,7 @@ function renderTreatments() {
 }
 
 // Toggle treatment date sort between recent and oldest
-window.toggleTreatmentDateSort = function() {
+function toggleTreatmentDateSort() {
   treatmentDateSort = treatmentDateSort === 'recent' ? 'oldest' : 'recent';
   currentTreatmentPage = 1; // Reset to first page when sorting changes
   renderTreatments();
@@ -3005,7 +3057,7 @@ function updateTreatmentSortIcon() {
   }
 }
 
-window.editTreatment = function (treatmentId) {
+function editTreatment(treatmentId) {
   const treatment = treatments.find((t) => t.id === treatmentId);
   if (!treatment) return;
   editingTreatmentId = treatmentId;
@@ -3039,7 +3091,7 @@ window.editTreatment = function (treatmentId) {
   showToast(`Editing treatment for ${getPatientName(treatment.patientId)}`);
 };
 
-window.deleteTreatment = function (treatmentId) {
+function deleteTreatment(treatmentId) {
   if (!confirm("Delete this treatment?")) return;
   const index = treatments.findIndex((t) => t.id === treatmentId);
   if (index >= 0) {
@@ -3390,8 +3442,8 @@ function renderBilling() {
       const paymentMethod = formatPaymentMethod(entry.paymentMethod || 'cash');
       return `
         <tr>
-          <td>${entry.date}</td>
-          <td>${patientName}</td>
+          <td>${escapeHtml(entry.date)}</td>
+          <td>${escapeHtml(patientName)}</td>
           <td>${formatINR(amountPaid)}</td>
           <td>${paymentMethod}</td>
           <td>${entry.pointsEarned || 0}</td>
@@ -3931,8 +3983,8 @@ function updateDentistStats(dentistStats) {
       // Use displayName for showing the original name with proper casing
       const displayName = stats.displayName || dentistKey;
       return `
-        <div class="dentist-stat-card" onclick="showDentistDetails('${displayName.replace(/'/g, "\\'")}')" style="cursor: pointer;">
-          <div class="dentist-name">Dr. ${displayName}</div>
+        <div class="dentist-stat-card" data-action="show-dentist" data-dentist="${escapeHtml(displayName)}" style="cursor: pointer;">
+          <div class="dentist-name">Dr. ${escapeHtml(displayName)}</div>
           <div class="dentist-metrics">
             <div class="metric">
               <span class="metric-label">Total Visits</span>
