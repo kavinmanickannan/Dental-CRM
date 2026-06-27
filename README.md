@@ -1,4 +1,4 @@
-# AARMA Dental Clinic — Clinic Management System
+# Patient Management System
 
 A browser-based CRM for dental clinics: patient records, treatment tracking,
 billing with a built-in rewards program, a forms library, and local-first data
